@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Peperiksaan Pertengahan 1 (Mac) 2026 - SMK Selirik</title>
+    <title>Dashboard Markah Peperiksaan Mac 2026 (Guru Tingkatan) - SMK Selirik</title>
     <style>
         /* CSS Variables & Global Styles */
         :root {
@@ -74,16 +74,17 @@
         .btn-danger { background-color: #dc3545; }
         .btn-danger:hover { background-color: #a71d2a; }
         .btn-success { background-color: #28a745; }
+        .btn-success:hover { background-color: #218838; }
 
         /* Dashboard */
         #dashboard-view { display: none; }
         .controls { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; margin-bottom: 20px; }
         .table-responsive { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9rem; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; vertical-align: middle; }
         th { background-color: var(--night-blue); color: white; }
         .text-left { text-align: left; }
-        select.ulasan-dropdown { width: 250px; padding: 5px; }
+        select.ulasan-dropdown { width: 200px; padding: 5px; font-size: 0.85rem;}
 
         /* Footer */
         footer {
@@ -119,12 +120,12 @@
 
     <header class="no-print">
         <img src="https://i.ibb.co/fYyZdyLz/Logo-Selirik.png" alt="Logo SMK Selirik">
-        <h1>SMK SELIRIK, KAPIT</h1>
-        <p>Portal Peperiksaan Pertengahan 1 (Mac) 2026</p>
+        <h1>SMK SELIRIK, KAPIT - 2026</h1>
+        <p>Dashboard Markah Peperiksaan Mac 2026 (Guru Tingkatan)</p>
     </header>
 
     <div class="container" id="login-view">
-        <h2>Log Masuk Guru Kelas</h2>
+        <h2>Log Masuk</h2>
         <div class="form-group">
             <label>ID Pengguna</label>
             <input type="text" id="login-id" placeholder="Masukkan ID">
@@ -144,7 +145,7 @@
             </select>
         </div>
         <button onclick="login()">Log Masuk</button>
-        <p id="login-error" style="color:red; display:none;">ID atau Kata Laluan salah!</p>
+        <p id="login-error" style="color:red; display:none; margin-top:10px;">ID atau Kata Laluan salah!</p>
     </div>
 
     <div class="container" id="dashboard-view">
@@ -153,16 +154,16 @@
                 <label style="font-weight:bold;">Pilih Kelas: </label>
                 <select id="class-selector" onchange="renderTable()"></select>
             </div>
-            <div>
-                <button onclick="saveData()" class="btn-success">Simpan Data & Ulasan</button>
+            <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                <button onclick="saveData()" class="btn-success">Simpan & Hantar Ulasan</button>
                 <button onclick="printClassLandscape()">Cetak Keseluruhan Kelas</button>
-                <button onclick="printBulkSlips()">Cetak Pukal Slip Individu</button>
+                <button onclick="printBulkSlips()">Cetak Pukal Individu</button>
                 <button onclick="logout()" class="btn-danger">Keluar</button>
             </div>
         </div>
         
-        <h3 style="text-align:center;" id="dash-title">Senarai Pelajar & Keputusan</h3>
-        <p style="text-align:center; color: #555; font-size: 0.9rem;" id="loading-text">Sedang memuat turun data...</p>
+        <h3 style="text-align:center;" id="dash-title">Rekod Penilaian Kelas</h3>
+        <p style="text-align:center; color: #555; font-size: 0.9rem;" id="loading-text">Sedang memuat turun data dari Google Sheets...</p>
         
         <div class="table-responsive">
             <table id="data-table">
@@ -230,7 +231,7 @@
             return n - 1;
         }
 
-        // Subjek Definitions
+        // Subjek Definitions (With Short Names as requested for print)
         const subjekT45 = [
             { id: 'BM', name: "BAHASA MELAYU", short: "BM", m: l2c('E'), g: l2c('F') },
             { id: 'SEJ', name: "SEJARAH", short: "SEJ", m: l2c('G'), g: l2c('H') },
@@ -404,21 +405,21 @@
             });
             thead += `<th>Jum</th><th>Purata</th><th>GP</th>`;
             if(layout.png) thead += `<th>PNG</th>`;
-            thead += `<th>KDK</th><th>KDT</th><th>Analisis</th><th>Keputusan</th><th>Ulasan Guru Kelas</th><th>Aksi</th>`;
+            thead += `<th>KDK</th><th>KDT</th><th>Analisis</th><th>Keputusan</th><th>Ulasan Guru Tingkatan</th><th>Aksi</th>`;
             document.getElementById('table-header').innerHTML = thead;
 
             // Table Body
             let tbody = '';
             filteredData.forEach((row, idx) => {
                 let name = row[l2c('C')] || '-';
-                tbody += `<tr><td>${idx+1}</td><td class="text-left"><b>${name}</b></td>`;
+                tbody += `<tr><td>${idx+1}</td><td class="text-left" style="min-width: 150px;"><b>${name}</b></td>`;
                 
                 activeSubjects.forEach(s => {
                     let mark = row[s.m] || '';
                     let grade = row[s.g] || '';
                     if(mark === 'NULL' || mark === '') mark = '-';
                     if(grade === 'NULL' || grade === '') grade = '';
-                    tbody += `<td>${mark} <br> ${grade}</td>`;
+                    tbody += `<td>${mark} <br> <b>${grade}</b></td>`;
                 });
 
                 tbody += `
@@ -431,12 +432,12 @@
                     <td>${row[layout.analisis] || '-'}</td>
                     <td>${row[layout.keputusan] || '-'}</td>
                     <td>
-                        <select class="ulasan-dropdown" id="ulasan_${idx}" onchange="updateUlasan(this, '${name}')">
-                            <option value="">-- Pilih Ulasan --</option>
+                        <select class="ulasan-dropdown" id="ulasan_${idx}" onchange="updateUlasan(this, '${name.replace(/'/g, "\\'")}')">
+                            <option value="">-- Sila Pilih Ulasan --</option>
                             ${ULASAN_LIST.map(u => `<option value="${u}" ${row[layout.ulasan] === u ? 'selected' : ''}>${u}</option>`).join('')}
                         </select>
                     </td>
-                    <td><button onclick="printIndividual(${idx})">Cetak</button></td>
+                    <td><button onclick="printIndividual(${idx})" style="padding: 5px 10px; font-size: 0.8rem;">Cetak</button></td>
                 </tr>`;
             });
             document.getElementById('table-body').innerHTML = tbody;
@@ -452,19 +453,45 @@
 
             // Update localStorage
             let savedData = JSON.parse(localStorage.getItem(`ulasan_T${currentForm}`) || '{}');
-            savedData[studentName] = val;
+            savedData[studentName] = { ulasan: val, status: 'pending' };
             localStorage.setItem(`ulasan_T${currentForm}`, JSON.stringify(savedData));
         }
 
         function saveData() {
-            // Ini akan mensimulasikan penghantaran ke Google Apps Script. 
-            // Dalam senario sebenar, anda boleh POST data terkini ke SCRIPT_URLS.
-            alert("Berjaya Disimpan ke Local Storage! Sistem sedang menyegerak dengan Google Sheets (Simulasi).");
+            // Function to sync localStorage data to Google Apps Script
+            let savedData = JSON.parse(localStorage.getItem(`ulasan_T${currentForm}`) || '{}');
+            let entriesToSync = Object.keys(savedData).filter(key => savedData[key].status === 'pending');
             
-            /* Contoh POST untuk Google Script:
-               let url = SCRIPT_URLS[currentForm];
-               fetch(url, { method: "POST", mode: "no-cors", body: JSON.stringify(dataPayload) });
-            */
+            if(entriesToSync.length === 0) {
+                alert("Tiada ulasan baharu untuk disimpan.");
+                return;
+            }
+
+            // Create payload format based on your sheet requirement
+            // Assuming your backend handles POST data: { nama: "...", ulasan: "..." }
+            let url = SCRIPT_URLS[currentForm];
+            let promises = entriesToSync.map(name => {
+                let formData = new FormData();
+                formData.append('nama', name);
+                formData.append('ulasan', savedData[name].ulasan);
+                
+                return fetch(url, {
+                    method: 'POST',
+                    mode: 'no-cors', // standard approach for writing to google app script without CORS issue
+                    body: formData
+                }).then(() => {
+                    // mark as synced locally
+                    savedData[name].status = 'synced';
+                });
+            });
+
+            Promise.all(promises).then(() => {
+                localStorage.setItem(`ulasan_T${currentForm}`, JSON.stringify(savedData));
+                alert("Berjaya Disimpan ke Local Storage dan dihantar ke pangkalan data Google Sheet!");
+            }).catch(err => {
+                console.error(err);
+                alert("Data disimpan di Local Storage, tetapi ralat berlaku semasa menghantar ke Google Sheet.");
+            });
         }
 
         // --- PRINTING LOGIC --- //
@@ -485,7 +512,7 @@
                         <br><br>AWIN ANAK ENGGA<br>PENGETUA<br>SMK SELIRIK
                     </div>
                     <div class="sign-box">
-                        <br><br>${guruName || 'GURU KELAS'}<br>GURU TINGKATAN ${className}<br>SMK SELIRIK
+                        <br><br>${guruName || 'GURU TINGKATAN'}<br>GURU TINGKATAN ${className}<br>SMK SELIRIK
                     </div>
                 </div>
             `;
@@ -511,12 +538,12 @@
             activeSubjects.forEach(s => {
                 let mark = studentRow[s.m];
                 if(mark !== 'NULL' && mark !== undefined && mark.trim() !== '') {
-                     html += `<tr><td style="padding:5px;">${s.name}</td><td style="padding:5px; text-align:center;">${mark}</td><td style="padding:5px; text-align:center;">${studentRow[s.g] || ''}</td></tr>`;
+                     html += `<tr><td style="padding:5px;">${s.name}</td><td style="padding:5px; text-align:center;">${mark}</td><td style="padding:5px; text-align:center; font-weight:bold;">${studentRow[s.g] || ''}</td></tr>`;
                 }
             });
 
             html += `</table>`;
-            html += `<table style="width:100%; border:none; margin-bottom:10px;">
+            html += `<table style="width:100%; border:none; margin-bottom:10px; font-size: 0.95rem;">
                         <tr><td width="50%"><b>JUMLAH MARKAH:</b> ${studentRow[layout.jum]||'-'}</td><td><b>KEDUDUKAN DALAM KELAS:</b> ${studentRow[layout.kdk]||'-'}</td></tr>
                         <tr><td><b>PURATA MARKAH:</b> ${studentRow[layout.purata]||'-'}</td><td><b>KEDUDUKAN TINGKATAN:</b> ${studentRow[layout.kdt]||'-'}</td></tr>
                         <tr><td><b>GRED PURATA (GP):</b> ${studentRow[layout.gp]||'-'}</td><td><b>ANALISIS:</b> ${studentRow[layout.analisis]||'-'}</td></tr>
@@ -564,12 +591,12 @@
                         </tr></thead><tbody>`;
 
             filteredData.forEach((row, idx) => {
-                html += `<tr><td style="text-align:center; padding:4px;">${idx+1}</td><td style="padding:4px;">${row[l2c('C')]||'-'}</td>`;
+                html += `<tr><td style="text-align:center; padding:4px;">${idx+1}</td><td style="padding:4px; text-align:left; font-weight:bold;">${row[l2c('C')]||'-'}</td>`;
                 activeSubjects.forEach(s => {
                     let mark = row[s.m]; let grade = row[s.g];
                     if(mark === 'NULL' || mark === undefined) mark = '-';
                     if(grade === 'NULL' || grade === undefined) grade = '';
-                    html += `<td style="text-align:center; padding:4px;">${mark}<br>${grade}</td>`;
+                    html += `<td style="text-align:center; padding:4px;">${mark}<br><b>${grade}</b></td>`;
                 });
                 html += `<td style="text-align:center; padding:4px;">${row[layout.jum]||'-'}</td>
                          <td style="text-align:center; padding:4px;">${row[layout.purata]||'-'}</td>
@@ -577,8 +604,8 @@
                          ${layout.png ? `<td style="text-align:center; padding:4px;">${row[layout.png]||'-'}</td>` : ''}
                          <td style="text-align:center; padding:4px;">${row[layout.kdk]||'-'}</td>
                          <td style="text-align:center; padding:4px;">${row[layout.kdt]||'-'}</td>
-                         <td style="text-align:center; padding:4px;">${row[layout.analisis]||'-'}</td>
-                         <td style="text-align:center; padding:4px;">${row[layout.keputusan]||'-'}</td>
+                         <td style="text-align:center; padding:4px; font-size:9px;">${row[layout.analisis]||'-'}</td>
+                         <td style="text-align:center; padding:4px; font-size:9px;">${row[layout.keputusan]||'-'}</td>
                          </tr>`;
             });
 
