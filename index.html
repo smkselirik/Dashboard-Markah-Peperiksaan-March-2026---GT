@@ -3,444 +3,408 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Markah Peperiksaan Mac 2026</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Dashboard Markah Peperiksaan Mac 2026 (Guru Tingkatan)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
         :root {
             --night-blue: #151B54;
-            --soft-blue-grad: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            --soft-blue-gradient: linear-gradient(135deg, #e0f2f1 0%, #bbdefb 100%);
+            --corporate-pattern: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
         }
 
         body {
-            background: var(--soft-blue-grad);
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--soft-blue-gradient);
             min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #333;
         }
 
-        /* Header Styles */
-        .header-portal {
-            background: var(--night-blue);
-            background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png'); /* Pattern abstrak */
-            color: white;
-            padding: 20px 0;
-            border-bottom: 5px solid #000;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-
-        .logo-sekolah {
-            width: 100px;
-            margin-bottom: 10px;
-        }
-
-        /* Login Card */
-        .login-container {
-            max-width: 400px;
-            margin: 100px auto;
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
-
-        /* Dashboard Container */
-        #dashboard-content {
-            display: none;
-            padding: 20px;
-        }
-
-        .card {
-            border-radius: 15px;
-            border: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-        }
-
-        .table-custom {
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .table-custom th {
+        /* Header */
+        header {
             background-color: var(--night-blue);
+            background-image: var(--corporate-pattern);
             color: white;
+            padding: 30px 10px;
+            text-align: center;
+            border-bottom: 5px solid #ffd700;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        header img {
+            width: 100px;
+            margin-bottom: 15px;
+        }
+
+        header h1 { margin: 0; font-size: 1.8rem; letter-spacing: 1px; }
+        header p { margin: 5px 0 0; font-size: 1.1rem; opacity: 0.9; }
+
+        .container {
+            width: 95%;
+            max-width: 1400px;
+            margin: 20px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        /* Login */
+        #login-section {
+            max-width: 400px;
+            margin: 50px auto;
             text-align: center;
         }
 
-        /* Print Styles */
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;
+        }
+
+        button {
+            cursor: pointer; border: none; border-radius: 8px; font-weight: 600; transition: 0.3s;
+            padding: 12px 20px;
+        }
+        .btn-login { background: var(--night-blue); color: white; width: 100%; font-size: 1.1rem; }
+        .btn-save { background: #2e7d32; color: white; }
+        .btn-print { background: #d35400; color: white; }
+        .btn-logout { background: #c62828; color: white; }
+
+        /* Dashboard */
+        #dashboard-section { display: none; }
+        .controls {
+            display: flex; justify-content: space-between; align-items: flex-end;
+            flex-wrap: wrap; gap: 15px; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 2px solid #eee;
+        }
+
+        .table-responsive { overflow-x: auto; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th { background: var(--night-blue); color: white; padding: 12px 8px; border: 1px solid #ddd; white-space: nowrap; }
+        td { padding: 10px 8px; border: 1px solid #ddd; text-align: center; }
+        tr:nth-child(even) { background: #f8f9fa; }
+
+        .ulasan-select { width: 100%; min-width: 200px; padding: 5px; font-size: 0.8rem; }
+
+        footer { text-align: center; padding: 20px; color: #666; font-size: 0.9rem; }
+
+        /* Mobile Friendly */
+        @media (max-width: 768px) {
+            header h1 { font-size: 1.3rem; }
+            .controls { flex-direction: column; align-items: stretch; }
+            .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        }
+
+        /* Print Style */
         @media print {
-            .no-print { display: none !important; }
-            body { background: white !important; }
-            .print-page { 
-                page-break-after: always; 
-                margin: 0;
-                padding: 20px;
-            }
-            .header-slip {
-                width: 100%;
-                margin-bottom: 20px;
-            }
-            .signature-box {
-                margin-top: 50px;
-                display: flex;
-                justify-content: space-between;
-            }
+            body { background: white; }
+            header, .controls, footer, .btn-save, .btn-logout, .btn-print { display: none !important; }
+            .container { box-shadow: none; width: 100%; padding: 0; }
+            table { font-size: 7pt; }
+            @page { size: landscape; margin: 0.5cm; }
         }
-
-        .footer {
-            text-align: center;
-            padding: 20px;
-            font-size: 0.9rem;
-            color: #555;
-        }
-
-        .btn-primary { background-color: var(--night-blue); border: none; }
-        .btn-primary:hover { background-color: #0d123d; }
     </style>
 </head>
 <body>
 
-    <div id="login-section" class="container">
-        <div class="login-container text-center">
-            <img src="https://i.ibb.co/fYyZdyLz/Logo-Selirik.png" alt="Logo" class="logo-sekolah">
-            <h3>SMK SELIRIK, KAPIT</h3>
-            <p>Log Masuk Guru Tingkatan 2026</p>
-            <hr>
-            <div class="mb-3 text-start">
-                <label>ID Pengguna:</label>
-                <input type="text" id="username" class="form-control" placeholder="GT2026">
-            </div>
-            <div class="mb-3 text-start">
-                <label>Kata Laluan:</label>
-                <input type="password" id="password" class="form-control" placeholder="********">
-            </div>
-            <button onclick="handleLogin()" class="btn btn-primary w-100">MASUK</button>
+<header>
+    <img src="https://i.ibb.co/fYyZdyLz/Logo-Selirik.png" alt="Logo Sekolah">
+    <h1>SMK SELIRIK, KAPIT</h1>
+    <p>Dashboard Markah Peperiksaan Mac 2026 (Guru Tingkatan)</p>
+</header>
+
+<div class="container">
+    <div id="login-section">
+        <div class="form-group">
+            <label>Pilih Tingkatan</label>
+            <select id="login-tingkatan">
+                <option value="1">Tingkatan 1</option>
+                <option value="2">Tingkatan 2</option>
+                <option value="3">Tingkatan 3</option>
+                <option value="4">Tingkatan 4</option>
+                <option value="5">Tingkatan 5</option>
+            </select>
         </div>
+        <div class="form-group">
+            <label>ID Pengguna</label>
+            <input type="text" id="login-id" placeholder="GT2026">
+        </div>
+        <div class="form-group">
+            <label>Kata Laluan</label>
+            <input type="password" id="login-pass" placeholder="••••••••">
+        </div>
+        <button class="btn-login" onclick="handleLogin()">Masuk</button>
+        <p id="login-error" style="color:red; display:none; margin-top:10px;">ID atau Kata Laluan Salah!</p>
     </div>
 
-    <div id="dashboard-content">
-        <header class="header-portal text-center mb-4">
-            <img src="https://i.ibb.co/fYyZdyLz/Logo-Selirik.png" alt="Logo" class="logo-sekolah">
-            <h2 class="fw-bold">SMK SELIRIK, KAPIT</h2>
-            <h4>DASHBOARD MARKAH PEPERIKSAAN MAC 2026</h4>
-            <p class="mb-0">"Pendidikan Berkualiti, Insan Terdidik, Negara Sejahtera"</p>
-        </header>
-
-        <div class="container">
-            <div class="row no-print">
-                <div class="col-md-4">
-                    <div class="card p-3">
-                        <label class="fw-bold mb-2">Pilih Tingkatan:</label>
-                        <select id="select-tingkatan" class="form-select mb-3" onchange="fetchData()">
-                            <option value="">-- Sila Pilih --</option>
-                            <option value="1">Tingkatan 1</option>
-                            <option value="2">Tingkatan 2</option>
-                            <option value="3">Tingkatan 3</option>
-                            <option value="4">Tingkatan 4</option>
-                            <option value="5">Tingkatan 5</option>
-                        </select>
-
-                        <label class="fw-bold mb-2">Pilih Kelas:</label>
-                        <select id="select-kelas" class="form-select mb-3" onchange="filterDataByKelas()">
-                            <option value="">Pilih Tingkatan Dahulu</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-8">
-                    <div class="card p-3 text-center d-flex flex-row justify-content-around align-items-center" style="height: 100%;">
-                        <button class="btn btn-success" onclick="printBulkSlips()">🖨️ Cetak Pukal Slip</button>
-                        <button class="btn btn-info text-white" onclick="printClassSummary()">📊 Cetak Ringkasan Kelas</button>
-                        <button class="btn btn-warning" onclick="saveToLocal()">💾 Simpan Local</button>
-                        <button class="btn btn-danger" onclick="handleLogout()">🚪 Keluar</button>
-                    </div>
-                </div>
+    <div id="dashboard-section">
+        <div class="controls">
+            <div style="flex: 1; min-width: 250px;">
+                <label style="font-weight:bold;">Pilih Kelas:</label>
+                <select id="select-kelas" onchange="renderTable()" style="margin-top:5px; padding:10px; width:100%;">
+                    <option value="">-- Sila Pilih Kelas --</option>
+                </select>
             </div>
-
-            <div class="card p-4 table-responsive">
-                <h5 id="class-title" class="mb-3 fw-bold">Senarai Pelajar</h5>
-                <table class="table table-bordered table-hover table-custom" id="main-table">
-                    <thead>
-                        <tr id="table-header">
-                            </tr>
-                    </thead>
-                    <tbody id="table-body">
-                        </tbody>
-                </table>
+            <div class="btn-group">
+                <button class="btn-print" onclick="window.print()">📄 Cetak Jadual</button>
+                <button class="btn-print" onclick="cetakPukal()">🖨️ Cetak Pukal Slip</button>
+                <button class="btn-save" onclick="saveData()">💾 Simpan & Hantar</button>
+                <button class="btn-logout" onclick="location.reload()">🚪 Keluar</button>
             </div>
         </div>
 
-        <footer class="footer">
-            <hr>
-            <p>hakcipta NDJE@Selirik, Kapit 2026</p>
-        </footer>
+        <div id="loading" style="display:none; text-align:center; padding:20px;">Memuatkan data pangkalan data...</div>
+
+        <div class="table-responsive" id="main-table-container">
+            <table id="markah-table">
+                <thead id="table-head"></thead>
+                <tbody id="table-body"></tbody>
+            </table>
+        </div>
     </div>
+</div>
 
-    <div id="print-area" class="d-none"></div>
+<footer>
+    hakcipta NDJE@Selirik, Kapit 2026
+</footer>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-    
-    <script>
-        // CONFIGURATION
-        const CSV_LINKS = {
-            1: "https://docs.google.com/spreadsheets/d/e/2PACX-1vS9ngcL37KMX8ZDsGKomo7Lv6yowNqFdcWciJuvS1UkUU6aFHI_VKuFDLP1d0fKtMlXTW8APMYD38xZ/pub?gid=1419213935&single=true&output=csv",
-            2: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSD6QwXil_0_gA0OBb2t82FneuCt68Sp7P9-He4zyBPEoaVHkJent8hiCSFPa33F-AEmR9BgeEogpt-/pub?gid=1419213935&single=true&output=csv",
-            3: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQg40cTCNS7MVyZVA3-8sZkbNtVT_Db9abxz6xhv1ccZ5ZksWIy0qyn8y30lqxG9G9YN1TOMBXF7WCY/pub?gid=1419213935&single=true&output=csv",
-            4: "https://docs.google.com/spreadsheets/d/e/2PACX-1vR831uDWcPfxf9zOj-mekolv_DMkdsYRMdVsxoLcKqwL88z-tetvP57ti5wB5M2dYIXYVZf9eX7R6Q8/pub?gid=1615224868&single=true&output=csv",
-            5: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRq9lzeK5sombRvA2WRgEYGygUdZwEfifZHVy4IMZiRD7c-yll60qkA4pXeBBocqJsRV6GpM1uazU_B/pub?gid=1615224868&single=true&output=csv"
-        };
+<script>
+    // Konfigurasi Pautan Data & Script
+    const DATA_LINKS = {
+        1: "https://docs.google.com/spreadsheets/d/e/2PACX-1vS9ngcL37KMX8ZDsGKomo7Lv6yowNqFdcWciJuvS1UkUU6aFHI_VKuFDLP1d0fKtMlXTW8APMYD38xZ/pub?gid=1419213935&single=true&output=csv",
+        2: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSD6QwXil_0_gA0OBb2t82FneuCt68Sp7P9-He4zyBPEoaVHkJent8hiCSFPa33F-AEmR9BgeEogpt-/pub?gid=1419213935&single=true&output=csv",
+        3: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQg40cTCNS7MVyZVA3-8sZkbNtVT_Db9abxz6xhv1ccZ5ZksWIy0qyn8y30lqxG9G9YN1TOMBXF7WCY/pub?gid=1419213935&single=true&output=csv",
+        4: "https://docs.google.com/spreadsheets/d/e/2PACX-1vR831uDWcPfxf9zOj-mekolv_DMkdsYRMdVsxoLcKqwL88z-tetvP57ti5wB5M2dYIXYVZf9eX7R6Q8/pub?gid=1615224868&single=true&output=csv",
+        5: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRq9lzeK5sombRvA2WRgEYGygUdZwEfifZHVy4IMZiRD7c-yll60qkA4pXeBBocqJsRV6GpM1uazU_B/pub?gid=1615224868&single=true&output=csv"
+    };
 
-        const SCRIPT_URLS = {
-            1: "https://script.google.com/macros/s/AKfycbzI4uyIyKd5O0do0KQRbdjuzay3OMUBpN0EuJCOtbcAI4dAmh0Fj_n_CTsCX9mwdeNsEg/exec",
-            2: "https://script.google.com/macros/s/AKfycbw0BakCGDqNheCPyzdqrstH8jM0Je3D1fM2oJTB0odH5UIAO08GNdOSIqWMK6e1ZQmL/exec",
-            3: "https://script.google.com/macros/s/AKfycbwGVcnpPo2ASHnvXyvfCB2PQSYi9XtITDEF6YGC7G0idbXmw13TixmF02846I2593dH/exec",
-            4: "https://script.google.com/macros/s/AKfycbztn63Bhbjl6EKwvVFadcYNY3jzA0Nuty-_veEYQBkLenytXxQWZY5h7GweO3maDLn0/exec",
-            5: "https://script.google.com/macros/s/AKfycbxg5tGuWQ6U8Aou1tG-m5PXWEyfbfcq_maaL_W8awU35NiBf3v-7c8peqQMeBCIqIdUsQ/exec"
-        };
+    const SCRIPT_LINKS = {
+        1: "https://script.google.com/macros/s/AKfycbzI4uyIyKd5O0do0KQRbdjuzay3OMUBpN0EuJCOtbcAI4dAmh0Fj_n_CTsCX9mwdeNsEg/exec",
+        2: "https://script.google.com/macros/s/AKfycbw0BakCGDqNheCPyzdqrstH8jM0Je3D1fM2oJTB0odH5UIAO08GNdOSIqWMK6e1ZQmL/exec",
+        3: "https://script.google.com/macros/s/AKfycbwGVcnpPo2ASHnvXyvfCB2PQSYi9XtITDEF6YGC7G0idbXmw13TixmF02846I2593dH/exec",
+        4: "https://script.google.com/macros/s/AKfycbztn63Bhbjl6EKwvVFadcYNY3jzA0Nuty-_veEYQBkLenytXxQWZY5h7GweO3maDLn0/exec",
+        5: "https://script.google.com/macros/s/AKfycbxg5tGuWQ6U8Aou1tG-m5PXWEyfbfcq_maaL_W8awU35NiBf3v-7c8peqQMeBCIqIdUsQ/exec"
+    };
 
-        const ULASAN_LIST = [
-            "Teruskan berusaha untuk kejayaan lebih cemerlang untuk masa depan yang gemilang",
-            "Sekalung tahniah atas kejayaan anda. Teruskan Usaha dengan lebih gigih untuk kejayaan lebih baik.",
-            "Prestasi anda memberangsangkan. Usaha lagi untuk kejayaan yang lebih cemerlang",
-            "Anda mesti mempunyai motivasi yang tinggi dan minat terhadap pengajaran dan pembelajaran di dalam kelas. Anda mampu mencapai lebih kecemerlangan dengan bersikap proaktif di dalam kelas.",
-            "Keputusan semasa menunjukkan anda masih belum menemui cara belajar yang betul bagi mendapatkan keputusan yang lebih baik",
-            "Keputusan masih ditahap sederhana. Ia memerlukan komitmen daripada anda untuk memperbaiki pencapaian",
-            "Anda harus berusaha dengan lebih gigih bagi mendapatkan keputusan yang sebaiknya. Jangan berlengah lagi",
-            "Beberapa mata pelajaran masih belum mencapai tahap yang sepatutnya. Usaha dengan lebih kuat bagi memperbaiki prestasi",
-            "Berikan lebih tumpuan kepada matapelajaran tertentu.",
-            "Kejayaan tertakluk kepada daya usaha anda. Oleh itu tingkatkan usaha anda untuk kejayaan yang lebih baik daripada hari ini.",
-            "Usaha anda telah menunjukkan hasil yang agak baik. Gandakan usaha anda untuk mencapai kejayaan yang lebih baik.",
-            "Usaha dengan lebih kuat lagi. Pastikan keputusan kali ini dapat diubah melalui kerja keras selepas ini",
-            "Usaha berterusan menjamin keputusan yang lebih baik pada masa akan datang",
-            "Tingkatkan usaha anda. Anda pasti akan berjaya dengan lebih baik daripada hari ini.",
-            "Pencapaian memuaskan. Teruskan usaha anda. Anda pasti berjaya.",
-            "Hargai masa dan tingkatkan usaha anda.",
-            "Pencapaian masih lemah. Tingkatkan usaha dan ubah sikap demi masa depan anda.",
-            "Hargailah masa dan buangkan sikap kerap ponteng kelas. Tingkatkan usaha dan ubah sikap demi masa depan anda."
+    const ULASAN_LIST = [
+        "Teruskan berusaha untuk kejayaan lebih cemerlang untuk masa depan yang gemilang",
+        "Sekalung tahniah atas kejayaan anda. Teruskan Usaha dengan lebih gigih untuk kejayaan lebih baik.",
+        "Prestasi anda memberangsangkan. Usaha lagi untuk kejayaan yang lebih cemerlang",
+        "Anda mesti mempunyai motivasi yang tinggi dan minat terhadap pengajaran dan pembelajaran di dalam kelas. Anda mampu mencapai lebih kecemerlangan dengan bersikap proaktif di dalam kelas.",
+        "Keputusan semasa menunjukkan anda masih belum menemui cara belajar yang betul bagi mendapatkan keputusan yang lebih baik",
+        "Keputusan masih ditahap sederhana. Ia memerlukan komitmen daripada anda untuk memperbaiki pencapaian",
+        "Anda harus berusaha dengan lebih gigih bagi mendapatkan keputusan yang sebaiknya. Jangan berlengah lagi",
+        "Beberapa mata pelajaran masih belum mencapai tahap yang sepatutnya. Usaha dengan lebih kuat bagi memperbaiki prestasi",
+        "Berikan lebih tumpuan kepada matapelajaran tertentu.",
+        "Kejayaan tertakluk kepada daya usaha anda. Oleh itu tingkatkan usaha anda untuk kejayaan yang lebih baik daripada hari ini.",
+        "Usaha anda telah menunjukkan hasil yang agak baik. Gandakan usaha anda untuk mencapai kejayaan yang lebih baik.",
+        "Usaha dengan lebih kuat lagi. Pastikan keputusan kali ini dapat diubah melalui kerja keras selepas ini",
+        "Usaha berterusan menjamin keputusan yang lebih baik pada masa akan datang",
+        "Tingkatkan usaha anda. Anda pasti akan berjaya dengan lebih baik daripada hari ini.",
+        "Pencapaian memuaskan. Teruskan usaha anda. Anda pasti berjaya.",
+        "Hargai masa dan tingkatkan usaha anda.",
+        "Pencapaian masih lemah. Tingkatkan usaha dan ubah sikap demi masa depan anda.",
+        "Hargailah masa dan buangkan sikap kerap ponteng kelas. Tingkatkan usaha dan ubah sikap demi masa depan anda."
+    ];
+
+    let currentTing = "";
+    let rawData = [];
+    let filteredData = [];
+
+    function handleLogin() {
+        const id = document.getElementById('login-id').value;
+        const pass = document.getElementById('login-pass').value;
+        currentTing = document.getElementById('login-tingkatan').value;
+
+        if (id === "GT2026" && pass === "GT2026") {
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('dashboard-section').style.display = 'block';
+            loadData();
+        } else {
+            document.getElementById('login-error').style.display = 'block';
+        }
+    }
+
+    function loadData() {
+        document.getElementById('loading').style.display = 'block';
+        Papa.parse(DATA_LINKS[currentTing], {
+            download: true,
+            header: false,
+            complete: function(results) {
+                rawData = results.data;
+                document.getElementById('loading').style.display = 'none';
+                populateClasses();
+            }
+        });
+    }
+
+    function populateClasses() {
+        const select = document.getElementById('select-kelas');
+        const classes = [...new Set(rawData.slice(1).map(row => row[3]))].filter(c => c && c !== 'NULL');
+        classes.sort().forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c;
+            opt.textContent = c;
+            select.appendChild(opt);
+        });
+    }
+
+    function renderTable() {
+        const kelas = document.getElementById('select-kelas').value;
+        if (!kelas) return;
+
+        filteredData = rawData.filter(row => row[3] === kelas);
+        const isUpper = (currentTing >= 4);
+        
+        // Pemetaan subjek (Berasaskan Index 0-based: A=0, B=1, ...)
+        const subjects = isUpper ? [
+            {n:"BM", m:4, g:5}, {n:"SEJ", m:6, g:7}, {n:"ENG", m:8, g:9}, {n:"MATHS", m:10, g:11},
+            {n:"PM", m:12, g:13}, {n:"PI", m:14, g:15}, {n:"SN", m:16, g:17}, {n:"PSV", m:18, g:19},
+            {n:"BIB", m:20, g:21}, {n:"RC", m:22, g:23}, {n:"PP", m:24, g:25}, {n:"FIZ", m:26, g:27},
+            {n:"KIM", m:28, g:29}, {n:"BIO", m:30, g:31}, {n:"ADD MATHS", m:32, g:33}, {n:"SK", m:34, g:35},
+            {n:"KAG", m:36, g:37}, {n:"PJPK", m:62, g:63}
+        ] : [
+            {n:"BM", m:4, g:5}, {n:"ENG", m:6, g:7}, {n:"MATHS", m:8, g:9}, {n:"SEJ", m:10, g:11},
+            {n:"SN", m:12, g:13}, {n:"GEO", m:14, g:15}, {n:"BIB", m:16, g:17}, {n:"PM", m:18, g:19},
+            {n:"PI", m:20, g:21}, {n:"RBT", m:22, g:23}, {n:"ASK", m:24, g:25}, {n:"PSV", m:26, g:27},
+            {n:"PJPK", m:40, g:41}
         ];
 
-        let currentData = [];
-        let filteredData = [];
+        // Tapis subjek yang ada markah sahaja dalam kelas ini
+        const activeSubs = subjects.filter(s => filteredData.some(r => r[s.m] && r[s.m] !== 'NULL' && r[s.m] !== ''));
 
-        // 1. LOGIN SYSTEM
-        function handleLogin() {
-            const user = document.getElementById('username').value;
-            const pass = document.getElementById('password').value;
-            if(user === "GT2026" && pass === "GT2026") {
-                document.getElementById('login-section').style.display = 'none';
-                document.getElementById('dashboard-content').style.display = 'block';
+        // Header Table
+        let headHtml = `<tr><th>Bil</th><th style="text-align:left;">Nama Pelajar</th>`;
+        activeSubs.forEach(s => headHtml += `<th>${s.n}</th>`);
+        headHtml += `<th>JUM</th><th>PURATA</th><th>GP</th>${isUpper ? '<th>PNG</th>' : ''}<th>ANALISIS</th><th>KEPUTUSAN</th><th>KDK</th><th>KDT</th><th>Ulasan Guru</th></tr>`;
+        document.getElementById('table-head').innerHTML = headHtml;
+
+        // Body Table
+        let bodyHtml = "";
+        filteredData.forEach((row, idx) => {
+            let rowHtml = `<td>${idx+1}</td><td style="text-align:left; font-weight:bold;">${row[2]}</td>`;
+            activeSubs.forEach(s => {
+                let mark = row[s.m] || '-';
+                let gred = row[s.g] || '';
+                rowHtml += `<td>${mark}<br><small>${gred}</small></td>`;
+            });
+
+            // Rumusan (Index berbeza ikut tingkatan)
+            if(isUpper) {
+                rowHtml += `<td>${row[78]}</td><td>${row[79]}</td><td>${row[80]}</td><td>${row[81]}</td><td>${row[84]}</td><td>${row[82]}</td><td>${row[83]}</td><td>${row[101]}</td>`;
             } else {
-                alert("ID atau Kata Laluan Salah!");
-            }
-        }
-
-        function handleLogout() {
-            location.reload();
-        }
-
-        // 2. DATA FETCHING
-        function fetchData() {
-            const ting = document.getElementById('select-tingkatan').value;
-            if(!ting) return;
-
-            Papa.parse(CSV_LINKS[ting], {
-                download: true,
-                header: false,
-                complete: function(results) {
-                    currentData = results.data;
-                    populateKelasDropdown(results.data);
-                }
-            });
-        }
-
-        function populateKelasDropdown(data) {
-            const selectKelas = document.getElementById('select-kelas');
-            selectKelas.innerHTML = '<option value="">-- Pilih Kelas --</option>';
-            
-            // Ambil kelas unik dari Kolum D (Index 3)
-            const classes = [...new Set(data.slice(1).map(row => row[3]))].filter(c => c);
-            classes.sort().forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c;
-                opt.textContent = c;
-                selectKelas.appendChild(opt);
-            });
-        }
-
-        // 3. FILTERING & DISPLAY
-        function filterDataByKelas() {
-            const kelas = document.getElementById('select-kelas').value;
-            const ting = document.getElementById('select-tingkatan').value;
-            if(!kelas) return;
-
-            // Filter data: Nama(C/2), Kelas(D/3). Ambil dari row yang ada markah.
-            filteredData = currentData.filter(row => row[3] === kelas && row[2]);
-            
-            renderTable(ting, kelas);
-        }
-
-        function renderTable(ting, kelas) {
-            const headerRow = document.getElementById('table-header');
-            const tbody = document.getElementById('table-body');
-            headerRow.innerHTML = '<th>No</th><th>Nama</th><th>Kelas</th><th>Jum</th><th>Purata</th><th>GP</th><th>Keputusan</th><th>Ulasan Guru</th>';
-            tbody.innerHTML = '';
-
-            filteredData.forEach((row, index) => {
-                const tr = document.createElement('tr');
-                
-                // Mapping Kolum mengikut tingkatan
-                let jum, purata, gp, keputusan, ulasan;
-                if(ting >= 4) {
-                    jum = row[78]; // CA
-                    purata = row[79]; // CB
-                    gp = row[80]; // CC
-                    keputusan = row[82]; // CE
-                    ulasan = row[100] || ""; // CW
-                } else {
-                    jum = row[54]; // BC
-                    purata = row[55]; // BD
-                    gp = row[56]; // BE
-                    keputusan = row[62]; // BK
-                    ulasan = row[60] || ""; // BI
-                }
-
-                let ulasanOptions = ULASAN_LIST.map(u => `<option value="${u}" ${u === ulasan ? 'selected' : ''}>${u}</option>`).join('');
-
-                tr.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td class="text-start">${row[2]}</td>
-                    <td>${row[3]}</td>
-                    <td>${jum}</td>
-                    <td>${purata}</td>
-                    <td>${gp}</td>
-                    <td><span class="badge bg-secondary">${keputusan}</span></td>
-                    <td>
-                        <select class="form-select form-select-sm" onchange="updateUlasan(${index}, this.value)">
-                            <option value="">-- Pilih Ulasan --</option>
-                            ${ulasanOptions}
-                        </select>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        // 4. SAVE & SUBMIT
-        function updateUlasan(index, val) {
-            const ting = document.getElementById('select-tingkatan').value;
-            filteredData[index].ulasanBaru = val;
-            // Di sini anda boleh buat fetch ke Google Apps Script Script URL yang diberikan
-            console.log("Ulasan dikemaskini untuk", filteredData[index][2], ":", val);
-        }
-
-        function saveToLocal() {
-            localStorage.setItem('dashboard_cache', JSON.stringify(filteredData));
-            alert("Data disimpan secara local!");
-        }
-
-        // 5. PRINT FUNCTIONS
-        function printClassSummary() {
-            const kelas = document.getElementById('select-kelas').value;
-            let printWindow = window.open('', '_blank');
-            let content = `
-                <html>
-                <head>
-                    <title>Ringkasan Kelas ${kelas}</title>
-                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-                    <style>@media print { @page { size: landscape; } }</style>
-                </head>
-                <body class="p-4" onload="window.print()">
-                    <div class="text-center mb-4">
-                        <img src="https://i.ibb.co/670hn3CB/smk-selirik.png" style="width:100%">
-                        <h3 class="mt-3">REKOD KEPUTUSAN KESELURUHAN KELAS: ${kelas}</h3>
-                    </div>
-                    <table class="table table-bordered table-sm" style="font-size:10px">
-                        ${document.getElementById('main-table').innerHTML}
-                    </table>
-                </body>
-                </html>
-            `;
-            printWindow.document.write(content);
-            printWindow.document.close();
-        }
-
-        function printBulkSlips() {
-            const ting = document.getElementById('select-tingkatan').value;
-            const kelas = document.getElementById('select-kelas').value;
-            
-            let printWindow = window.open('', '_blank');
-            let slipsHtml = '';
-
-            filteredData.forEach(row => {
-                slipsHtml += generateSlipHtml(row, ting, kelas);
-            });
-
-            printWindow.document.write(`
-                <html>
-                <head>
-                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-                    <style>
-                        .slip-container { page-break-after: always; padding: 40px; border: 1px solid #eee; }
-                        .header-img { width: 100%; margin-bottom: 20px; }
-                        table { width: 100%; border-collapse: collapse; }
-                        th, td { border: 1px solid black; padding: 5px; text-align: center; }
-                        .text-left { text-align: left; }
-                    </style>
-                </head>
-                <body onload="window.print()">
-                    ${slipsHtml}
-                </body>
-                </html>
-            `);
-            printWindow.document.close();
-        }
-
-        function generateSlipHtml(row, ting, kelas) {
-            // Logik pemilihan subjek mengikut pemetaan dalam arahan
-            // (Contoh ringkas dipaparkan, anda boleh tambah semua kolum subjek mengikut senarai)
-            let nama = row[2];
-            let jum, purata, gp, kdk, kdt, ulasan, guru;
-
-            if(ting >= 4) {
-                jum = row[78]; purata = row[79]; gp = row[80]; kdk = row[83]; kdt = row[101]; ulasan = row[100]; guru = row[102];
-            } else {
-                jum = row[54]; purata = row[55]; gp = row[56]; kdk = row[58]; kdt = row[69]; ulasan = row[60]; guru = row[70];
+                rowHtml += `<td>${row[54]}</td><td>${row[55]}</td><td>${row[56]}</td><td>${row[59]}</td><td>${row[62]}</td><td>${row[58]}</td><td>${row[69]}</td>`;
             }
 
-            return `
-                <div class="slip-container">
-                    <img src="https://i.ibb.co/670hn3CB/smk-selirik.png" class="header-img">
-                    <h4 class="text-center">SLIP KEPUTUSAN PEPERIKSAAN MAC 2026</h4>
-                    <div class="row mb-3">
-                        <div class="col-6">NAMA: ${nama}</div>
-                        <div class="col-6">KELAS: ${kelas}</div>
+            // Dropdown Ulasan
+            const ulasanSekarang = localStorage.getItem(`ulasan_${currentTing}_${row[2]}`) || (isUpper ? row[100] : row[60]);
+            rowHtml += `<td><select class="ulasan-select" data-nama="${row[2]}">
+                <option value="">-- Pilih Ulasan --</option>
+                ${ULASAN_LIST.map(u => `<option value="${u}" ${u === ulasanSekarang ? 'selected' : ''}>${u}</option>`).join('')}
+            </select></td>`;
+
+            bodyHtml += `<tr>${rowHtml}</tr>`;
+        });
+        document.getElementById('table-body').innerHTML = bodyHtml;
+    }
+
+    function cetakPukal() {
+        const kelas = document.getElementById('select-kelas').value;
+        if (!kelas) return alert("Sila pilih kelas!");
+
+        let printWindow = window.open('', '_blank');
+        let html = `<html><head><title>Slip Pukal - ${kelas}</title><style>
+            body { font-family: Arial, sans-serif; margin:0; padding:0; }
+            .slip-page { width: 21cm; min-height: 29.7cm; padding: 1cm; margin: auto; border: 1px solid #eee; page-break-after: always; box-sizing: border-box; }
+            .header-img { width: 100%; height: auto; margin-bottom: 20px; }
+            .info-table { width: 100%; margin-bottom: 20px; font-weight: bold; }
+            .marks-table { width: 100%; border-collapse: collapse; }
+            .marks-table th, .marks-table td { border: 1px solid black; padding: 8px; text-align: center; }
+            .footer-sign { width: 100%; margin-top: 50px; display: flex; justify-content: space-between; }
+            .sign-box { width: 45%; }
+        </style></head><body>`;
+
+        const isUpper = (currentTing >= 4);
+        const subjects = isUpper ? [
+            {n:"BAHASA MELAYU", m:4, g:5}, {n:"SEJARAH", m:6, g:7}, {n:"ENGLISH LANGUAGE", m:8, g:9}, {n:"MATEMATIK", m:10, g:11},
+            {n:"PENDIDIKAN MORAL", m:12, g:13}, {n:"PENDIDIKAN ISLAM", m:14, g:15}, {n:"SAINS", m:16, g:17}, {n:"PENDIDIKAN SENI VISUAL", m:18, g:19},
+            {n:"BAHASA IBAN", m:20, g:21}, {n:"REKA CIPTA", m:22, g:23}, {n:"PENGAJIAN PENIAGAAN", m:24, g:25}, {n:"PHYSICS", m:26, g:27},
+            {n:"CHEMISTRY", m:28, g:29}, {n:"BIOLOGY", m:30, g:31}, {n:"ADDITIONAL MATHEMATICS", m:32, g:33}, {n:"SAINS KOMPUTER", m:34, g:35},
+            {n:"KIMPALAN ARKA & GAS", m:36, g:37}, {n:"PJPK", m:62, g:63}
+        ] : [
+            {n:"BAHASA MELAYU", m:4, g:5}, {n:"ENGLISH LANGUAGE", m:6, g:7}, {n:"MATEMATIK", m:8, g:9}, {n:"SEJARAH", m:10, g:11},
+            {n:"SAINS", m:12, g:13}, {n:"GEOGRAFI", m:14, g:15}, {n:"BAHASA IBAN", m:16, g:17}, {n:"PENDIDIKAN MORAL", m:18, g:19},
+            {n:"PENDIDIKAN ISLAM", m:20, g:21}, {n:"REKA BENTUK & TEKNOLOGI", m:22, g:23}, {n:"ASAS SAINS KOMPUTER", m:24, g:25}, {n:"PENDIDIKAN SENI VISUAL", m:26, g:27},
+            {n:"PJPK", m:40, g:41}
+        ];
+
+        filteredData.forEach(row => {
+            const activeForStudent = subjects.filter(s => row[s.m] && row[s.m] !== 'NULL' && row[s.m] !== '');
+            const ulasan = localStorage.getItem(`ulasan_${currentTing}_${row[2]}`) || (isUpper ? row[100] : row[60]);
+            const guruNama = isUpper ? row[102] : row[70];
+
+            html += `
+            <div class="slip-page">
+                <img src="https://i.ibb.co/670hn3CB/smk-selirik.png" class="header-img">
+                <table class="info-table">
+                    <tr><td width="15%">NAMA</td><td>: ${row[2]}</td></tr>
+                    <tr><td>KELAS</td><td>: ${row[3]}</td></tr>
+                </table>
+                <table class="marks-table">
+                    <thead><tr><th>BIL</th><th style="text-align:left;">MATA PELAJARAN</th><th>MARKAH</th><th>GRED</th></tr></thead>
+                    <tbody>
+                        ${activeForStudent.map((s, i) => `<tr><td>${i+1}</td><td style="text-align:left;">${s.n}</td><td>${row[s.m]}</td><td>${row[s.g]}</td></tr>`).join('')}
+                    </tbody>
+                </table>
+                <p><b>JUMLAH: ${isUpper ? row[78] : row[54]} | PURATA: ${isUpper ? row[79] : row[55]} | GP: ${isUpper ? row[80] : row[56]} | KDK: ${isUpper ? row[83] : row[58]} | KDT: ${isUpper ? row[101] : row[69]}</b></p>
+                <div style="border:1px solid black; padding:10px; margin-top:10px;">
+                    <b>Ulasan Guru Kelas:</b><br>${ulasan || 'Tiada ulasan.'}
+                </div>
+                <div class="footer-sign">
+                    <div class="sign-box">
+                        Disahkan Oleh:<br><br><br>
+                        <b>AWIN ANAK ENGGA</b><br>PENGETUA<br>SMK SELIRIK
                     </div>
-                    <table class="table">
-                        <thead><tr><th>SUBJEK</th><th>MARKAH</th><th>GRED</th></tr></thead>
-                        <tbody>
-                            <tr><td class="text-left">BAHASA MELAYU</td><td>${row[4] || '-'}</td><td>${row[5] || '-'}</td></tr>
-                            <tr><td class="text-left">SEJARAH</td><td>${row[6] || '-'}</td><td>${row[7] || '-'}</td></tr>
-                            </tbody>
-                    </table>
-                    <div class="mt-3 p-2 border">
-                        <strong>RUMUSAN:</strong><br>
-                        Jumlah: ${jum} | Purata: ${purata} | GP: ${gp} <br>
-                        Kedudukan Kelas: ${kdk} | Kedudukan Tingkatan: ${kdt} <br>
-                        Ulasan: ${ulasan || '-'}
-                    </div>
-                    <div class="row mt-5">
-                        <div class="col-6">
-                            <br>..................................<br>
-                            <strong>AWIN ANAK ENGGA</strong><br>PENGETUA SMK SELIRIK
-                        </div>
-                        <div class="col-6 text-end">
-                            <br>..................................<br>
-                            <strong>${guru || 'GURU TINGKATAN'}</strong><br>GURU TINGKATAN ${kelas}
-                        </div>
+                    <div class="sign-box" style="text-align:right;">
+                        Tandatangan Guru Kelas:<br><br><br>
+                        <b>${guruNama}</b><br>Guru Tingkatan ${row[3]}<br>SMK SELIRIK
                     </div>
                 </div>
-            `;
-        }
-    </script>
+            </div>`;
+        });
+
+        html += `</body></html>`;
+        printWindow.document.write(html);
+        printWindow.document.close();
+        setTimeout(() => printWindow.print(), 1000);
+    }
+
+    function saveData() {
+        const selects = document.querySelectorAll('.ulasan-select');
+        const scriptUrl = SCRIPT_LINKS[currentTing];
+        let count = 0;
+
+        selects.forEach(sel => {
+            const nama = sel.getAttribute('data-nama');
+            const ulasanVal = sel.value;
+            if(ulasanVal) {
+                localStorage.setItem(`ulasan_${currentTing}_${nama}`, ulasanVal);
+                
+                // Hantar ke Google Sheet
+                fetch(scriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify({ nama: nama, ulasan: ulasanVal })
+                });
+                count++;
+            }
+        });
+
+        alert(`Berjaya! ${count} ulasan telah disimpan dalam LocalStorage dan sedang dihantar ke Google Sheets.`);
+    }
+</script>
+
 </body>
 </html>
