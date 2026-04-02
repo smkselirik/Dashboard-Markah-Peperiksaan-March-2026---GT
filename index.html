@@ -10,7 +10,8 @@
     <style>
         :root {
             --night-blue: #151B54;
-            --soft-blue-gradient: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            /* Latar belakang Biru Muda Lembut (Gradient) yang telah dikemas kini */
+            --soft-blue-gradient: linear-gradient(135deg, #E0F7FA 0%, #90CAF9 100%);
             --corporate-pattern: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
         }
 
@@ -60,7 +61,7 @@
             max-width: 1200px;
             margin: 20px auto;
             background: white;
-            padding: 20px;
+            padding: 30px;
             border-radius: 12px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.1);
         }
@@ -68,7 +69,7 @@
         /* Login Box */
         #login-section {
             max-width: 400px;
-            margin: 50px auto;
+            margin: 30px auto;
             text-align: center;
         }
 
@@ -89,6 +90,7 @@
             border: 1px solid #ccc;
             border-radius: 6px;
             box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
         }
 
         button {
@@ -101,6 +103,7 @@
             font-weight: 600;
             transition: 0.3s;
             width: 100%;
+            font-family: 'Poppins', sans-serif;
         }
 
         button:hover {
@@ -124,8 +127,20 @@
             border-bottom: 1px solid #eee;
         }
 
+        /* Placeholder Message apabila kelas belum dipilih */
+        #placeholder-msg {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--night-blue);
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 2px dashed #bbdefb;
+            margin-top: 20px;
+        }
+
         .table-wrapper {
             overflow-x: auto;
+            display: none; /* Disembunyikan secara lalai */
         }
 
         table {
@@ -157,17 +172,8 @@
             width: 100%;
             padding: 5px;
             font-size: 0.8rem;
+            font-family: 'Poppins', sans-serif;
         }
-
-        .status-badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: bold;
-        }
-
-        .pass { background: #c8e6c9; color: #2e7d32; }
-        .fail { background: #ffcdd2; color: #c62828; }
 
         /* Footer */
         footer {
@@ -184,6 +190,7 @@
             header h1 { font-size: 1.2rem; }
             .filter-bar { flex-direction: column; align-items: stretch; }
             td, th { padding: 8px 4px; font-size: 0.75rem; }
+            .container { padding: 15px; }
         }
     </style>
 </head>
@@ -222,19 +229,24 @@
 
     <div id="dashboard-section">
         <div class="filter-bar">
-            <div>
-                <label>Pilih Kelas: </label>
-                <select id="select-kelas" onchange="filterData()"></select>
+            <div style="flex-grow: 1;">
+                <label style="font-weight: 600; color: var(--night-blue);">Pilih Kelas Anda: </label>
+                <select id="select-kelas" onchange="filterData()" style="padding: 8px; border-radius: 5px; border: 1px solid #ccc; font-family: 'Poppins'; margin-top: 5px; width: 100%; max-width: 300px;"></select>
             </div>
-            <div style="display: flex; gap: 10px;">
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
                 <button onclick="saveUlasan()" style="background: #2e7d32; width: auto;">Simpan Ulasan</button>
                 <button onclick="logout()" style="background: #c62828; width: auto;">Keluar</button>
             </div>
         </div>
 
-        <h3 id="display-title" style="text-align: center; color: var(--night-blue);"></h3>
+        <h3 id="display-title" style="text-align: center; color: var(--night-blue); margin-top: 5px;"></h3>
 
-        <div class="table-wrapper">
+        <div id="placeholder-msg">
+            <h2 style="margin-bottom: 10px;">Selamat Datang!</h2>
+            <p>Sila pilih nama kelas anda pada menu di atas untuk memaparkan senarai nama pelajar dan mula memasukkan ulasan pencapaian.</p>
+        </div>
+
+        <div class="table-wrapper" id="table-container">
             <table id="markah-table">
                 <thead id="table-head"></thead>
                 <tbody id="table-body"></tbody>
@@ -301,12 +313,17 @@
     }
 
     function fetchData() {
+        // Tunjukkan mesej loading sementara memuat turun data
+        document.getElementById('placeholder-msg').innerHTML = "<h2 style='margin-bottom: 10px;'>Sila Tunggu...</h2><p>Sedang memuat turun data dari pangkalan data sekolah.</p>";
+        
         const url = CONFIG.links[currentTingkatan];
         Papa.parse(url, {
             download: true,
-            header: false, // Kita guna index kolum manual ikut arahan
+            header: false,
             complete: function(results) {
                 currentData = results.data;
+                // Kembalikan mesej placeholder asal selepas data siap dimuat turun
+                document.getElementById('placeholder-msg').innerHTML = "<h2 style='margin-bottom: 10px;'>Selamat Datang!</h2><p>Sila pilih nama kelas anda pada menu di atas untuk memaparkan senarai nama pelajar dan mula memasukkan ulasan pencapaian.</p>";
                 populateKelas(results.data);
             }
         });
@@ -321,7 +338,9 @@
             if(data[i][3]) kelasSet.add(data[i][3]);
         }
 
-        selectKelas.innerHTML = "";
+        // Set pilihan lalai "Sila Pilih Kelas" supaya jadual kosong pada mulanya
+        selectKelas.innerHTML = '<option value="">-- Sila Pilih Kelas --</option>';
+        
         kelasSet.forEach(k => {
             const opt = document.createElement('option');
             opt.value = k;
@@ -329,17 +348,33 @@
             selectKelas.appendChild(opt);
         });
 
+        // Panggil filterData untuk memastikan jadual kekal tersembunyi pada mulanya
         filterData();
     }
 
     function filterData() {
         const selectedKelas = document.getElementById('select-kelas').value;
+        const tableContainer = document.getElementById('table-container');
+        const placeholderMsg = document.getElementById('placeholder-msg');
+        const displayTitle = document.getElementById('display-title');
+        
+        // Jika tiada kelas dipilih, paparkan mesej placeholder dan sembunyikan jadual
+        if (!selectedKelas) {
+            tableContainer.style.display = 'none';
+            placeholderMsg.style.display = 'block';
+            displayTitle.textContent = "";
+            return;
+        }
+
+        // Jika kelas dipilih, sembunyikan mesej placeholder dan tunjukkan jadual
+        tableContainer.style.display = 'block';
+        placeholderMsg.style.display = 'none';
+        displayTitle.textContent = `Dashboard Markah Peperiksaan Mac 2026 - Kelas ${selectedKelas}`;
+
         const ting = parseInt(currentTingkatan);
         const head = document.getElementById('table-head');
         const body = document.getElementById('table-body');
         
-        document.getElementById('display-title').textContent = `Dashboard Markah Peperiksaan Mac 2026 - Kelas ${selectedKelas}`;
-
         // Subjek Header Base
         let headers = ["Bil", "Nama Pelajar"];
         let subjekIdx = [];
@@ -421,7 +456,7 @@
             const val = sel.value;
             if(val) {
                 localStorage.setItem(`ulasan_${name}`, val);
-                // Kirim ke Google Script (Simulasi/Background)
+                // Kirim ke Google Script
                 fetch(scriptUrl, {
                     method: 'POST',
                     mode: 'no-cors',
@@ -429,7 +464,7 @@
                 });
             }
         });
-        alert("Ulasan telah disimpan secara tempatan dan dihantar ke pangkalan data!");
+        alert("Tahniah! Ulasan telah berjaya disimpan secara tempatan dan dihantar ke pangkalan data.");
     }
 
     function logout() {
