@@ -10,7 +10,7 @@
     <style>
         :root {
             --night-blue: #151B54;
-            /* Latar belakang Biru Muda Lembut (Gradient) yang telah dikemas kini */
+            /* Latar belakang Biru Muda Lembut (Gradient) */
             --soft-blue-gradient: linear-gradient(135deg, #E0F7FA 0%, #90CAF9 100%);
             --corporate-pattern: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
         }
@@ -58,7 +58,7 @@
         /* Container */
         .container {
             width: 95%;
-            max-width: 1200px;
+            max-width: 1300px;
             margin: 20px auto;
             background: white;
             padding: 30px;
@@ -94,22 +94,26 @@
         }
 
         button {
-            background: var(--night-blue);
             color: white;
             border: none;
-            padding: 12px 25px;
+            padding: 10px 20px;
             border-radius: 6px;
             cursor: pointer;
             font-weight: 600;
             transition: 0.3s;
-            width: 100%;
             font-family: 'Poppins', sans-serif;
+            font-size: 0.85rem;
         }
 
         button:hover {
-            background: #232b70;
+            opacity: 0.8;
             transform: translateY(-2px);
         }
+
+        .btn-primary { background: var(--night-blue); width: 100%; padding: 12px; font-size: 1rem;}
+        .btn-success { background: #2e7d32; }
+        .btn-danger { background: #c62828; }
+        .btn-print { background: #d35400; } /* Warna Oren untuk butang cetak */
 
         /* Dashboard Section */
         #dashboard-section {
@@ -124,10 +128,15 @@
             gap: 15px;
             margin-bottom: 20px;
             padding-bottom: 15px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 2px solid #eee;
         }
 
-        /* Placeholder Message apabila kelas belum dipilih */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
         #placeholder-msg {
             text-align: center;
             padding: 50px 20px;
@@ -140,7 +149,7 @@
 
         .table-wrapper {
             overflow-x: auto;
-            display: none; /* Disembunyikan secara lalai */
+            display: none;
         }
 
         table {
@@ -153,13 +162,14 @@
         th {
             background-color: var(--night-blue);
             color: white;
-            padding: 12px;
+            padding: 10px;
             text-align: center;
             border: 1px solid #ddd;
+            white-space: nowrap;
         }
 
         td {
-            padding: 10px;
+            padding: 8px;
             border: 1px solid #ddd;
             text-align: center;
         }
@@ -170,12 +180,12 @@
 
         .ulasan-select {
             width: 100%;
+            min-width: 180px;
             padding: 5px;
             font-size: 0.8rem;
             font-family: 'Poppins', sans-serif;
         }
 
-        /* Footer */
         footer {
             margin-top: auto;
             padding: 20px;
@@ -185,12 +195,20 @@
             width: 100%;
         }
 
-        /* Mobile Adjustments */
-        @media (max-width: 600px) {
-            header h1 { font-size: 1.2rem; }
+        /* Tetapan Khas Semasa Print Jadual (Ctrl+P) */
+        @media print {
+            body { background: white; }
+            header, .filter-bar, footer, button, #placeholder-msg { display: none !important; }
+            .container { box-shadow: none; width: 100%; max-width: 100%; padding: 0; margin: 0; }
+            .table-wrapper { overflow-x: visible; }
+            table { font-size: 8pt; }
+            th { background-color: #eee !important; color: black !important; }
+            @page { size: landscape; }
+        }
+
+        @media (max-width: 768px) {
             .filter-bar { flex-direction: column; align-items: stretch; }
-            td, th { padding: 8px 4px; font-size: 0.75rem; }
-            .container { padding: 15px; }
+            .action-buttons { justify-content: center; }
         }
     </style>
 </head>
@@ -223,19 +241,24 @@
             <label>Kata Laluan</label>
             <input type="password" id="user-pass" placeholder="Masukkan Kata Laluan">
         </div>
-        <button onclick="login()">Masuk Ke Dashboard</button>
+        <button class="btn-primary" onclick="login()">Masuk Ke Dashboard</button>
         <p id="error-msg" style="color: red; font-size: 0.8rem; display: none; margin-top: 10px;">ID atau Kata Laluan Salah!</p>
     </div>
 
     <div id="dashboard-section">
         <div class="filter-bar">
-            <div style="flex-grow: 1;">
-                <label style="font-weight: 600; color: var(--night-blue);">Pilih Kelas Anda: </label>
-                <select id="select-kelas" onchange="filterData()" style="padding: 8px; border-radius: 5px; border: 1px solid #ccc; font-family: 'Poppins'; margin-top: 5px; width: 100%; max-width: 300px;"></select>
+            <div>
+                <label style="font-weight: 600; color: var(--night-blue);">Pilih Kelas Anda: </label><br>
+                <select id="select-kelas" onchange="filterData()" style="padding: 8px; border-radius: 5px; border: 1px solid #ccc; font-family: 'Poppins'; margin-top: 5px; min-width: 200px;"></select>
             </div>
-            <div style="display: flex; gap: 10px; margin-top: 10px;">
-                <button onclick="saveUlasan()" style="background: #2e7d32; width: auto;">Simpan Ulasan</button>
-                <button onclick="logout()" style="background: #c62828; width: auto;">Keluar</button>
+            
+            <div class="action-buttons" id="action-buttons" style="display: none;">
+                <button class="btn-print" onclick="cetakJadual()">📄 Cetak Jadual</button>
+                <button class="btn-print" onclick="cetakSlip()">🖨️ Cetak Slip Pelajar</button>
+                <button class="btn-print" onclick="eksportExcel()" style="background: #27ae60;">📊 Eksport Excel</button>
+                
+                <button class="btn-success" onclick="saveUlasan()">💾 Simpan Ulasan</button>
+                <button class="btn-danger" onclick="logout()">🚪 Keluar</button>
             </div>
         </div>
 
@@ -243,7 +266,7 @@
 
         <div id="placeholder-msg">
             <h2 style="margin-bottom: 10px;">Selamat Datang!</h2>
-            <p>Sila pilih nama kelas anda pada menu di atas untuk memaparkan senarai nama pelajar dan mula memasukkan ulasan pencapaian.</p>
+            <p>Sila pilih nama kelas anda pada menu di atas untuk memaparkan senarai nama pelajar.</p>
         </div>
 
         <div class="table-wrapper" id="table-container">
@@ -296,6 +319,8 @@
 
     let currentData = [];
     let currentTingkatan = "";
+    let filteredStudents = [];
+    let activeSubjects = []; // Simpan subjek yang wujud untuk kelas dipilih
 
     function login() {
         const id = document.getElementById('user-id').value;
@@ -313,7 +338,6 @@
     }
 
     function fetchData() {
-        // Tunjukkan mesej loading sementara memuat turun data
         document.getElementById('placeholder-msg').innerHTML = "<h2 style='margin-bottom: 10px;'>Sila Tunggu...</h2><p>Sedang memuat turun data dari pangkalan data sekolah.</p>";
         
         const url = CONFIG.links[currentTingkatan];
@@ -322,8 +346,7 @@
             header: false,
             complete: function(results) {
                 currentData = results.data;
-                // Kembalikan mesej placeholder asal selepas data siap dimuat turun
-                document.getElementById('placeholder-msg').innerHTML = "<h2 style='margin-bottom: 10px;'>Selamat Datang!</h2><p>Sila pilih nama kelas anda pada menu di atas untuk memaparkan senarai nama pelajar dan mula memasukkan ulasan pencapaian.</p>";
+                document.getElementById('placeholder-msg').innerHTML = "<h2 style='margin-bottom: 10px;'>Selamat Datang!</h2><p>Sila pilih nama kelas anda pada menu di atas untuk memaparkan senarai nama pelajar.</p>";
                 populateKelas(results.data);
             }
         });
@@ -333,14 +356,11 @@
         const selectKelas = document.getElementById('select-kelas');
         const kelasSet = new Set();
         
-        // Ambil kelas dari kolum D (index 3)
         for(let i = 1; i < data.length; i++) {
-            if(data[i][3]) kelasSet.add(data[i][3]);
+            if(data[i][3] && data[i][3] !== "NULL") kelasSet.add(data[i][3]);
         }
 
-        // Set pilihan lalai "Sila Pilih Kelas" supaya jadual kosong pada mulanya
         selectKelas.innerHTML = '<option value="">-- Sila Pilih Kelas --</option>';
-        
         kelasSet.forEach(k => {
             const opt = document.createElement('option');
             opt.value = k;
@@ -348,7 +368,6 @@
             selectKelas.appendChild(opt);
         });
 
-        // Panggil filterData untuk memastikan jadual kekal tersembunyi pada mulanya
         filterData();
     }
 
@@ -357,17 +376,18 @@
         const tableContainer = document.getElementById('table-container');
         const placeholderMsg = document.getElementById('placeholder-msg');
         const displayTitle = document.getElementById('display-title');
+        const actionBtns = document.getElementById('action-buttons');
         
-        // Jika tiada kelas dipilih, paparkan mesej placeholder dan sembunyikan jadual
         if (!selectedKelas) {
             tableContainer.style.display = 'none';
+            actionBtns.style.display = 'none';
             placeholderMsg.style.display = 'block';
             displayTitle.textContent = "";
             return;
         }
 
-        // Jika kelas dipilih, sembunyikan mesej placeholder dan tunjukkan jadual
         tableContainer.style.display = 'block';
+        actionBtns.style.display = 'flex';
         placeholderMsg.style.display = 'none';
         displayTitle.textContent = `Dashboard Markah Peperiksaan Mac 2026 - Kelas ${selectedKelas}`;
 
@@ -375,13 +395,13 @@
         const head = document.getElementById('table-head');
         const body = document.getElementById('table-body');
         
-        // Subjek Header Base
-        let headers = ["Bil", "Nama Pelajar"];
-        let subjekIdx = [];
+        // 1. Dapatkan data khusus untuk kelas ini sahaja
+        filteredStudents = currentData.filter(row => row[3] === selectedKelas);
 
+        // 2. Senarai semua subjek berpotensi
+        let allSubjekIdx = [];
         if (ting >= 4) {
-            // T4 & T5
-            subjekIdx = [
+            allSubjekIdx = [
                 {n: "BM", m: 4, g: 5}, {n: "SEJ", m: 6, g: 7}, {n: "ENG", m: 8, g: 9},
                 {n: "MAT", m: 10, g: 11}, {n: "PM", m: 12, g: 13}, {n: "PI", m: 14, g: 15},
                 {n: "SN", m: 16, g: 17}, {n: "PSV", m: 18, g: 19}, {n: "IBAN", m: 20, g: 21},
@@ -389,62 +409,207 @@
                 {n: "CHE", m: 28, g: 29}, {n: "BIO", m: 30, g: 31}, {n: "AMAT", m: 32, g: 33},
                 {n: "SK", m: 34, g: 35}, {n: "KAG", m: 36, g: 37}, {n: "PJPK", m: 62, g: 63}
             ];
-            headers.push(...subjekIdx.map(s => s.n));
-            headers.push("Jumlah", "Purata", "GP", "PNG", "KDK", "KDT", "Ulasan");
         } else {
-            // T1, T2, T3
-            subjekIdx = [
+            allSubjekIdx = [
                 {n: "BM", m: 4, g: 5}, {n: "ENG", m: 6, g: 7}, {n: "MAT", m: 8, g: 9},
                 {n: "SEJ", m: 10, g: 11}, {n: "SN", m: 12, g: 13}, {n: "GEO", m: 14, g: 15},
                 {n: "IBAN", m: 16, g: 17}, {n: "PM", m: 18, g: 19}, {n: "PI", m: 20, g: 21},
                 {n: "RBT", m: 22, g: 23}, {n: "ASK", m: 24, g: 25}, {n: "PSV", m: 26, g: 27},
                 {n: "PJPK", m: 40, g: 41}
             ];
-            headers.push(...subjekIdx.map(s => s.n));
-            headers.push("Jumlah", "Purata", "GP", "KDK", "KDT", "Ulasan");
         }
 
-        // Render Head
+        // 3. Tapis subjek: Hanya simpan subjek yang mana sekurang-kurangnya 1 pelajar dalam kelas ada markah
+        activeSubjects = allSubjekIdx.filter(s => {
+            return filteredStudents.some(row => {
+                let mark = row[s.m];
+                return (mark && mark !== 'NULL' && mark.trim() !== '');
+            });
+        });
+
+        // 4. Bina Header
+        let headers = ["Bil", "Nama Pelajar"];
+        headers.push(...activeSubjects.map(s => s.n));
+        
+        if (ting >= 4) {
+            headers.push("JUM", "PURATA", "GP", "PNG", "KDK", "KDT", "Ulasan");
+        } else {
+            headers.push("JUM", "PURATA", "GP", "KDK", "KDT", "Ulasan");
+        }
         head.innerHTML = `<tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
 
-        // Render Body
+        // 5. Bina Body
         body.innerHTML = "";
         let bil = 1;
-        for (let i = 1; i < currentData.length; i++) {
-            const row = currentData[i];
-            if (row[3] === selectedKelas) {
-                let htmlRow = `<td>${bil++}</td><td style="text-align:left; min-width:150px;">${row[2]}</td>`;
-                
-                // Markah Subjek
-                subjekIdx.forEach(s => {
-                    let mark = row[s.m];
-                    let gred = row[s.g];
-                    if (!mark || mark === 'NULL' || mark === '') {
-                        htmlRow += `<td>-</td>`;
-                    } else {
-                        htmlRow += `<td>${mark}<br><strong>${gred}</strong></td>`;
-                    }
-                });
-
-                // Rumusan
-                if (ting >= 4) {
-                    htmlRow += `<td>${row[78] || '-'}</td><td>${row[79] || '-'}</td><td>${row[80] || '-'}</td><td>${row[81] || '-'}</td><td>${row[83] || '-'}</td><td>${row[101] || '-'}</td>`;
+        filteredStudents.forEach(row => {
+            let htmlRow = `<td>${bil++}</td><td style="text-align:left; min-width:180px;">${row[2]}</td>`;
+            
+            // Masukkan markah hanya untuk activeSubjects
+            activeSubjects.forEach(s => {
+                let mark = row[s.m];
+                let gred = row[s.g];
+                if (!mark || mark === 'NULL' || mark.trim() === '') {
+                    htmlRow += `<td>-</td>`;
                 } else {
-                    htmlRow += `<td>${row[54] || '-'}</td><td>${row[55] || '-'}</td><td>${row[56] || '-'}</td><td>${row[58] || '-'}</td><td>${row[69] || '-'}</td>`;
+                    htmlRow += `<td>${mark}<br><strong>${gred}</strong></td>`;
                 }
+            });
 
-                // Dropdown Ulasan
-                const savedUlasan = localStorage.getItem(`ulasan_${row[2]}`) || "";
-                htmlRow += `<td>
-                    <select class="ulasan-select" data-name="${row[2]}">
-                        <option value="">-- Pilih Ulasan --</option>
-                        ${ULASAN_LIST.map(u => `<option value="${u}" ${savedUlasan === u ? 'selected' : ''}>${u}</option>`).join('')}
-                    </select>
-                </td>`;
-
-                body.innerHTML += `<tr>${htmlRow}</tr>`;
+            // Rumusan
+            if (ting >= 4) {
+                htmlRow += `<td>${row[78] || '-'}</td><td>${row[79] || '-'}</td><td>${row[80] || '-'}</td><td>${row[81] || '-'}</td><td>${row[83] || '-'}</td><td>${row[101] || '-'}</td>`;
+            } else {
+                htmlRow += `<td>${row[54] || '-'}</td><td>${row[55] || '-'}</td><td>${row[56] || '-'}</td><td>${row[58] || '-'}</td><td>${row[69] || '-'}</td>`;
             }
-        }
+
+            // Dropdown Ulasan
+            const savedUlasan = localStorage.getItem(`ulasan_${row[2]}`) || "";
+            htmlRow += `<td>
+                <select class="ulasan-select" data-name="${row[2]}">
+                    <option value="">-- Pilih Ulasan --</option>
+                    ${ULASAN_LIST.map(u => `<option value="${u}" ${savedUlasan === u ? 'selected' : ''}>${u}</option>`).join('')}
+                </select>
+            </td>`;
+
+            body.innerHTML += `<tr>${htmlRow}</tr>`;
+        });
+    }
+
+    // FUNGSI 1: Cetak Jadual Kertas (Print Table)
+    function cetakJadual() {
+        window.print();
+    }
+
+    // FUNGSI 2: Eksport Excel (CSV Format)
+    function eksportExcel() {
+        let table = document.getElementById("markah-table");
+        let rows = table.querySelectorAll("tr");
+        let csvContent = "";
+
+        rows.forEach(row => {
+            let rowData = [];
+            let cols = row.querySelectorAll("td, th");
+            cols.forEach(col => {
+                // Buang elemen select box jika ada, ambil value ulasan dari localStorage
+                if(col.querySelector('select')) {
+                    let sel = col.querySelector('select');
+                    rowData.push('"' + sel.value + '"');
+                } else {
+                    // Gantikan breakline dengan ruang kosong untuk Excel
+                    let text = col.innerText.replace(/\n/g, ' ');
+                    rowData.push('"' + text + '"');
+                }
+            });
+            csvContent += rowData.join(",") + "\n";
+        });
+
+        let blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        let link = document.createElement("a");
+        let url = URL.createObjectURL(blob);
+        let className = document.getElementById('select-kelas').value;
+        link.setAttribute("href", url);
+        link.setAttribute("download", `Markah_${className}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // FUNGSI 3: Cetak Slip Keputusan Pelajar
+    function cetakSlip() {
+        const className = document.getElementById('select-kelas').value;
+        const ting = parseInt(currentTingkatan);
+        let slipHTML = `
+            <html>
+            <head>
+                <title>Slip Keputusan - ${className}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; }
+                    .slip-container { width: 100%; max-width: 800px; margin: 0 auto; page-break-after: always; padding: 40px 20px; }
+                    .header { text-align: center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 20px; }
+                    .header h2 { margin: 5px 0; }
+                    .student-info { margin-bottom: 20px; width: 100%; }
+                    .student-info td { padding: 5px; font-weight: bold; }
+                    table.marks { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                    table.marks th, table.marks td { border: 1px solid #000; padding: 8px; text-align: center; }
+                    table.marks th { background-color: #f2f2f2; }
+                    .ulasan-box { border: 1px dashed #000; padding: 15px; margin-top: 20px; }
+                    @media print { body { -webkit-print-color-adjust: exact; } }
+                </style>
+            </head>
+            <body>
+        `;
+
+        filteredStudents.forEach(row => {
+            let nama = row[2];
+            let jum = ting >= 4 ? row[78] : row[54];
+            let purata = ting >= 4 ? row[79] : row[55];
+            let gp = ting >= 4 ? row[80] : row[56];
+            let kdk = ting >= 4 ? row[83] : row[58];
+            let kdt = ting >= 4 ? row[101] : row[69];
+            let savedUlasan = localStorage.getItem(`ulasan_${nama}`) || "Tiada ulasan.";
+
+            slipHTML += `
+                <div class="slip-container">
+                    <div class="header">
+                        <h2>SMK SELIRIK, KAPIT</h2>
+                        <h3>SLIP KEPUTUSAN PEPERIKSAAN MAC 2026</h3>
+                    </div>
+                    <table class="student-info">
+                        <tr><td width="15%">NAMA</td><td width="3%">:</td><td>${nama}</td></tr>
+                        <tr><td>KELAS</td><td>:</td><td>${className}</td></tr>
+                    </table>
+                    
+                    <table class="marks">
+                        <tr>
+                            <th>MATA PELAJARAN</th>
+                            <th>MARKAH</th>
+                            <th>GRED</th>
+                        </tr>
+            `;
+
+            activeSubjects.forEach(s => {
+                let mark = row[s.m];
+                let gred = row[s.g];
+                if (mark && mark !== 'NULL' && mark.trim() !== '') {
+                    // Dapatkan nama penuh subjek atau biarkan singkatan
+                    slipHTML += `<tr><td style="text-align:left;">${s.n}</td><td>${mark}</td><td>${gred}</td></tr>`;
+                }
+            });
+
+            slipHTML += `
+                    </table>
+                    
+                    <table style="width: 100%; font-weight: bold; margin-bottom: 10px;">
+                        <tr>
+                            <td>JUMLAH MARKAH: ${jum || '-'}</td>
+                            <td>PURATA: ${purata || '-'}</td>
+                            <td>GRED PURATA: ${gp || '-'}</td>
+                        </tr>
+                        <tr>
+                            <td>KDK: ${kdk || '-'}</td>
+                            <td>KDT: ${kdt || '-'}</td>
+                            <td></td>
+                        </tr>
+                    </table>
+                    
+                    <div class="ulasan-box">
+                        <strong>Ulasan Guru Tingkatan:</strong><br><br>
+                        ${savedUlasan}
+                    </div>
+                </div>
+            `;
+        });
+
+        slipHTML += `</body></html>`;
+        
+        let printWindow = window.open('', '_blank');
+        printWindow.document.write(slipHTML);
+        printWindow.document.close();
+        
+        // Beri masa sikit untuk browser render sebelum panggil print
+        setTimeout(() => {
+            printWindow.print();
+        }, 500);
     }
 
     function saveUlasan() {
@@ -456,7 +621,6 @@
             const val = sel.value;
             if(val) {
                 localStorage.setItem(`ulasan_${name}`, val);
-                // Kirim ke Google Script
                 fetch(scriptUrl, {
                     method: 'POST',
                     mode: 'no-cors',
