@@ -320,7 +320,7 @@
     let currentData = [];
     let currentTingkatan = "";
     let filteredStudents = [];
-    let activeSubjects = []; // Simpan subjek yang wujud untuk kelas dipilih
+    let activeSubjects = [];
 
     function login() {
         const id = document.getElementById('user-id').value;
@@ -395,10 +395,8 @@
         const head = document.getElementById('table-head');
         const body = document.getElementById('table-body');
         
-        // 1. Dapatkan data khusus untuk kelas ini sahaja
         filteredStudents = currentData.filter(row => row[3] === selectedKelas);
 
-        // 2. Senarai semua subjek berpotensi
         let allSubjekIdx = [];
         if (ting >= 4) {
             allSubjekIdx = [
@@ -419,7 +417,6 @@
             ];
         }
 
-        // 3. Tapis subjek: Hanya simpan subjek yang mana sekurang-kurangnya 1 pelajar dalam kelas ada markah
         activeSubjects = allSubjekIdx.filter(s => {
             return filteredStudents.some(row => {
                 let mark = row[s.m];
@@ -427,7 +424,6 @@
             });
         });
 
-        // 4. Bina Header
         let headers = ["Bil", "Nama Pelajar"];
         headers.push(...activeSubjects.map(s => s.n));
         
@@ -438,13 +434,11 @@
         }
         head.innerHTML = `<tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
 
-        // 5. Bina Body
         body.innerHTML = "";
         let bil = 1;
         filteredStudents.forEach(row => {
             let htmlRow = `<td>${bil++}</td><td style="text-align:left; min-width:180px;">${row[2]}</td>`;
             
-            // Masukkan markah hanya untuk activeSubjects
             activeSubjects.forEach(s => {
                 let mark = row[s.m];
                 let gred = row[s.g];
@@ -455,14 +449,12 @@
                 }
             });
 
-            // Rumusan
             if (ting >= 4) {
                 htmlRow += `<td>${row[78] || '-'}</td><td>${row[79] || '-'}</td><td>${row[80] || '-'}</td><td>${row[81] || '-'}</td><td>${row[83] || '-'}</td><td>${row[101] || '-'}</td>`;
             } else {
                 htmlRow += `<td>${row[54] || '-'}</td><td>${row[55] || '-'}</td><td>${row[56] || '-'}</td><td>${row[58] || '-'}</td><td>${row[69] || '-'}</td>`;
             }
 
-            // Dropdown Ulasan
             const savedUlasan = localStorage.getItem(`ulasan_${row[2]}`) || "";
             htmlRow += `<td>
                 <select class="ulasan-select" data-name="${row[2]}">
@@ -475,12 +467,10 @@
         });
     }
 
-    // FUNGSI 1: Cetak Jadual Kertas (Print Table)
     function cetakJadual() {
         window.print();
     }
 
-    // FUNGSI 2: Eksport Excel (CSV Format)
     function eksportExcel() {
         let table = document.getElementById("markah-table");
         let rows = table.querySelectorAll("tr");
@@ -490,12 +480,10 @@
             let rowData = [];
             let cols = row.querySelectorAll("td, th");
             cols.forEach(col => {
-                // Buang elemen select box jika ada, ambil value ulasan dari localStorage
                 if(col.querySelector('select')) {
                     let sel = col.querySelector('select');
                     rowData.push('"' + sel.value + '"');
                 } else {
-                    // Gantikan breakline dengan ruang kosong untuk Excel
                     let text = col.innerText.replace(/\n/g, ' ');
                     rowData.push('"' + text + '"');
                 }
@@ -514,7 +502,7 @@
         document.body.removeChild(link);
     }
 
-    // FUNGSI 3: Cetak Slip Keputusan Pelajar
+    // Fungsi Cetak Slip Dengan Header Rasmi
     function cetakSlip() {
         const className = document.getElementById('select-kelas').value;
         const ting = parseInt(currentTingkatan);
@@ -523,16 +511,21 @@
             <head>
                 <title>Slip Keputusan - ${className}</title>
                 <style>
-                    body { font-family: Arial, sans-serif; }
+                    body { font-family: Arial, sans-serif; color: #333; }
                     .slip-container { width: 100%; max-width: 800px; margin: 0 auto; page-break-after: always; padding: 40px 20px; }
-                    .header { text-align: center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 20px; }
-                    .header h2 { margin: 5px 0; }
+                    /* Style untuk Header Rasmi Slip */
+                    .header { text-align: center; border-bottom: 3px double #000; padding-bottom: 15px; margin-bottom: 25px; }
+                    .header img { width: 90px; margin-bottom: 10px; }
+                    .header h2 { margin: 0; font-size: 24px; color: #151B54; letter-spacing: 1px; }
+                    .header h3 { margin: 5px 0 0 0; font-size: 16px; font-weight: normal; }
+                    .header p { margin: 10px 0 0 0; font-weight: bold; font-size: 18px; }
+                    
                     .student-info { margin-bottom: 20px; width: 100%; }
-                    .student-info td { padding: 5px; font-weight: bold; }
+                    .student-info td { padding: 6px; font-weight: bold; font-size: 15px; }
                     table.marks { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-                    table.marks th, table.marks td { border: 1px solid #000; padding: 8px; text-align: center; }
-                    table.marks th { background-color: #f2f2f2; }
-                    .ulasan-box { border: 1px dashed #000; padding: 15px; margin-top: 20px; }
+                    table.marks th, table.marks td { border: 1px solid #000; padding: 10px; text-align: center; }
+                    table.marks th { background-color: #f2f2f2; font-size: 14px; }
+                    .ulasan-box { border: 1px solid #000; padding: 20px; margin-top: 20px; background-color: #f9f9f9; border-radius: 5px; }
                     @media print { body { -webkit-print-color-adjust: exact; } }
                 </style>
             </head>
@@ -546,14 +539,17 @@
             let gp = ting >= 4 ? row[80] : row[56];
             let kdk = ting >= 4 ? row[83] : row[58];
             let kdt = ting >= 4 ? row[101] : row[69];
-            let savedUlasan = localStorage.getItem(`ulasan_${nama}`) || "Tiada ulasan.";
+            let savedUlasan = localStorage.getItem(`ulasan_${nama}`) || "Tiada ulasan dimasukkan.";
 
             slipHTML += `
                 <div class="slip-container">
                     <div class="header">
+                        <img src="https://i.ibb.co/fYyZdyLz/Logo-Selirik.png" alt="Logo SMK Selirik">
                         <h2>SMK SELIRIK, KAPIT</h2>
-                        <h3>SLIP KEPUTUSAN PEPERIKSAAN MAC 2026</h3>
+                        <h3>Tahun 2026</h3>
+                        <p>SLIP KEPUTUSAN PEPERIKSAAN MAC</p>
                     </div>
+                    
                     <table class="student-info">
                         <tr><td width="15%">NAMA</td><td width="3%">:</td><td>${nama}</td></tr>
                         <tr><td>KELAS</td><td>:</td><td>${className}</td></tr>
@@ -571,30 +567,29 @@
                 let mark = row[s.m];
                 let gred = row[s.g];
                 if (mark && mark !== 'NULL' && mark.trim() !== '') {
-                    // Dapatkan nama penuh subjek atau biarkan singkatan
-                    slipHTML += `<tr><td style="text-align:left;">${s.n}</td><td>${mark}</td><td>${gred}</td></tr>`;
+                    slipHTML += `<tr><td style="text-align:left; font-weight:bold;">${s.n}</td><td>${mark}</td><td><strong>${gred}</strong></td></tr>`;
                 }
             });
 
             slipHTML += `
                     </table>
                     
-                    <table style="width: 100%; font-weight: bold; margin-bottom: 10px;">
+                    <table style="width: 100%; font-weight: bold; margin-bottom: 10px; font-size: 14px;">
                         <tr>
                             <td>JUMLAH MARKAH: ${jum || '-'}</td>
                             <td>PURATA: ${purata || '-'}</td>
                             <td>GRED PURATA: ${gp || '-'}</td>
                         </tr>
                         <tr>
-                            <td>KDK: ${kdk || '-'}</td>
-                            <td>KDT: ${kdt || '-'}</td>
+                            <td>KEDUDUKAN KELAS: ${kdk || '-'}</td>
+                            <td>KEDUDUKAN TINGKATAN: ${kdt || '-'}</td>
                             <td></td>
                         </tr>
                     </table>
                     
                     <div class="ulasan-box">
-                        <strong>Ulasan Guru Tingkatan:</strong><br><br>
-                        ${savedUlasan}
+                        <strong style="text-decoration: underline;">Ulasan Guru Tingkatan:</strong><br><br>
+                        <em>"${savedUlasan}"</em>
                     </div>
                 </div>
             `;
@@ -606,10 +601,9 @@
         printWindow.document.write(slipHTML);
         printWindow.document.close();
         
-        // Beri masa sikit untuk browser render sebelum panggil print
         setTimeout(() => {
             printWindow.print();
-        }, 500);
+        }, 800); // Masa dilanjutkan sedikit untuk pastikan logo sekolah siap dimuatkan sebelum pop-up cetakan keluar.
     }
 
     function saveUlasan() {
